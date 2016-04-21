@@ -7,7 +7,6 @@ struct CircularBuffer
   int * container;
   int getIndex;
   int putIndex;
-  bool isFull;
   bool isEmpty;
 };
 
@@ -29,7 +28,6 @@ Buffer * CircularBuffer_Create(int containerSize) {
   self->containerSize = containerSize;
   self->getIndex = 0;
   self->putIndex = 0;
-  self->isFull = false;
   self->isEmpty = true;
   return self;
 }
@@ -46,7 +44,7 @@ bool CircularBuffer_isEmpty(Buffer * self)
 
 bool CircularBuffer_isFull(Buffer * self)
 {
-  return self->isFull;
+  return !self->isEmpty && self->putIndex == self->getIndex;
 }
 
 int nextIndex(int currentIndex, int containerSize);
@@ -57,29 +55,24 @@ int nextIndex(int currentIndex, int containerSize)
 
 void CircularBuffer_Put(Buffer * self, int element)
 {
-  if (!CircularBuffer_isFull(self)) {
-    self->isEmpty = false;
-    self->container[self->putIndex] = element;
-    self->putIndex = nextIndex(self->putIndex, self->containerSize);
+  if (CircularBuffer_isFull(self))
+    return;
 
-    if (self->getIndex == self->putIndex)
-      self->isFull = true;
-  }
+  self->isEmpty = false;
+  self->container[self->putIndex] = element;
+  self->putIndex = nextIndex(self->putIndex, self->containerSize);
 }
 
 int CircularBuffer_Get(Buffer * self)
 {
-  int element;
-  if (CircularBuffer_isEmpty(self)) {
-    element = INVALID_ELEMENT;
-  } else {
-    self->isFull = false;
-    element = self->container[self->getIndex];
-    self->getIndex = nextIndex(self->getIndex, self->containerSize);
+  if (CircularBuffer_isEmpty(self))
+    return INVALID_ELEMENT;
 
-    if (self->getIndex == self->putIndex)
-      self->isEmpty = true;
-  }
+  int element = self->container[self->getIndex];
+  self->getIndex = nextIndex(self->getIndex, self->containerSize);
+
+  if (self->getIndex == self->putIndex)
+    self->isEmpty = true;
 
   return element;
 }
