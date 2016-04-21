@@ -7,6 +7,8 @@ struct CircularBuffer
   int * container;
   int getIndex;
   int putIndex;
+  bool isFull;
+  bool isEmpty;
 };
 
 int * emptyContainer(int);
@@ -27,6 +29,8 @@ Buffer * CircularBuffer_Create() {
   self->containerSize = 3;
   self->getIndex = 0;
   self->putIndex = 0;
+  self->isFull = false;
+  self->isEmpty = true;
   return self;
 }
 
@@ -37,35 +41,44 @@ void CircularBuffer_Destroy(Buffer * self) {
 
 bool CircularBuffer_isEmpty(Buffer * self)
 {
-  return self->putIndex == self->getIndex;
+  return self->isEmpty;
 }
 
 bool CircularBuffer_isFull(Buffer * self)
 {
-  return ((self->putIndex - self->getIndex) == self->containerSize) ||
-    (self->putIndex == self->getIndex && self->getIndex != 0);
+  return self->isFull;
+}
+
+int nextIndex(int currentIndex, int containerSize);
+int nextIndex(int currentIndex, int containerSize)
+{
+  return currentIndex + 1 == containerSize ? 0 : currentIndex + 1;
 }
 
 void CircularBuffer_Put(Buffer * self, int element)
 {
-  if (self->putIndex >= self->containerSize)
-    self->getIndex = 0;
+  if (!CircularBuffer_isFull(self)) {
+    self->isEmpty = false;
+    self->container[self->putIndex] = element;
+    self->putIndex = nextIndex(self->putIndex, self->containerSize);
 
-  if (self->container[self->putIndex] == INVALID_ELEMENT)
-    self->container[self->putIndex++] = element;
+    if (self->getIndex == self->putIndex)
+      self->isFull = true;
+  }
 }
 
 int CircularBuffer_Get(Buffer * self)
 {
   int element;
-  if (self->getIndex >= self->containerSize) {
-    self->getIndex = 0;
+  if (CircularBuffer_isEmpty(self)) {
+    element = INVALID_ELEMENT;
+  } else {
+    self->isFull = false;
     element = self->container[self->getIndex];
-  }
-  element = self->container[self->getIndex];
-  if (element != INVALID_ELEMENT) {
-    self->container[self->getIndex] = INVALID_ELEMENT;
-    self->getIndex++;
+    self->getIndex = nextIndex(self->getIndex, self->containerSize);
+
+    if (self->getIndex == self->putIndex)
+      self->isEmpty = true;
   }
 
   return element;
