@@ -10,7 +10,7 @@ TEST_GROUP(CircularBuffer)
   CircularBuffer * buffer;
 
   void setup() {
-    buffer = CircularBuffer_Create();
+    buffer = CircularBuffer_Create(3);
   }
 
   void teardown() {
@@ -32,6 +32,17 @@ TEST_GROUP(CircularBuffer)
 TEST(CircularBuffer, whenCreated_isEmpty)
 {
   CHECK_TEXT(CircularBuffer_isEmpty(buffer), "Not empty when created");
+}
+
+TEST(CircularBuffer, canBeCreatedWithDynamicSize)
+{
+  CircularBuffer * buffer = CircularBuffer_Create(2);
+  CircularBuffer_Put(buffer, 1);
+  CircularBuffer_Put(buffer, 2);
+
+  CHECK_TEXT(CircularBuffer_isFull(buffer), "Not empty when created");
+
+  CircularBuffer_Destroy(buffer);
 }
 
 TEST(CircularBuffer, whenCreated_isNotFull)

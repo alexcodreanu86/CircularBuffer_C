@@ -23,10 +23,10 @@ int * emptyContainer(int numberOfElements)
   return container;
 }
 
-Buffer * CircularBuffer_Create() {
+Buffer * CircularBuffer_Create(int containerSize) {
   Buffer * self = (Buffer *) calloc(1, sizeof (Buffer));
-  self->container = emptyContainer(3);
-  self->containerSize = 3;
+  self->container = emptyContainer(containerSize);
+  self->containerSize = containerSize;
   self->getIndex = 0;
   self->putIndex = 0;
   self->isFull = false;

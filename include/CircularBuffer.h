@@ -4,7 +4,7 @@ struct CircularBuffer;
 
 enum { INVALID_ELEMENT = -1 };
 
-struct CircularBuffer * CircularBuffer_Create(void);
+struct CircularBuffer * CircularBuffer_Create(int);
 void CircularBuffer_Destroy(struct CircularBuffer *);
 
 bool CircularBuffer_isEmpty(struct CircularBuffer *);
